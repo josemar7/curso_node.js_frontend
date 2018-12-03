@@ -59,7 +59,17 @@ class App extends Component {
   loginHandler = (event, authData) => {
     event.preventDefault();
     this.setState({ authLoading: true });
-    fetch('URL')
+    const objThis = this;
+    fetch('http://localhost:8080/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: authData.email,
+        password: authData.password
+      })
+    })
       .then(res => {
         if (res.status === 422) {
           throw new Error('Validation failed.');
@@ -72,7 +82,8 @@ class App extends Component {
       })
       .then(resData => {
         console.log(resData);
-        this.setState({
+        console.log(objThis);
+        objThis.setState({
           isAuth: true,
           token: resData.token,
           authLoading: false,
@@ -89,7 +100,7 @@ class App extends Component {
       })
       .catch(err => {
         console.log(err);
-        this.setState({
+        objThis.setState({
           isAuth: false,
           authLoading: false,
           error: err
@@ -100,7 +111,6 @@ class App extends Component {
   signupHandler = (event, authData) => {
     event.preventDefault();
     this.setState({ authLoading: true });
-    console.log(authData.signupForm.password.value);
     fetch('http://localhost:8080/auth/signup', {
       method: 'PUT',
       headers: {
