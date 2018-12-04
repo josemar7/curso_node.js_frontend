@@ -22,7 +22,16 @@ class Feed extends Component {
   };
 
   componentDidMount() {
-    fetch('URL')
+    const userId = localStorage.getItem('userId');
+    let token = this.props.token;
+    if (!token) {
+      token = localStorage.getItem('token');
+    }
+    fetch('http://localhost:8080/auth/user/' + userId, {
+      headers: {
+        Authorization: 'Bearer ' + token
+      }
+    })
       .then(res => {
         if (res.status !== 200) {
           throw new Error('Failed to fetch user status.');
@@ -30,7 +39,7 @@ class Feed extends Component {
         return res.json();
       })
       .then(resData => {
-        this.setState({ status: resData.status });
+        this.setState({ status: resData.user.status });
       })
       .catch(this.catchError);
 
@@ -82,8 +91,23 @@ class Feed extends Component {
   };
 
   statusUpdateHandler = event => {
+    let token = this.props.token;
+    if (!token) {
+      token = localStorage.getItem('token');
+    }
+    const userId = localStorage.getItem('userId');
     event.preventDefault();
-    fetch('URL')
+    const status = this.state.status;
+    fetch('http://localhost:8080/auth/user/' + userId, {
+      method: 'PUT',
+      headers: {
+        Authorization: 'Bearer ' + token, 
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        status: status
+      })
+    })
       .then(res => {
         if (res.status !== 200 && res.status !== 201) {
           throw new Error("Can't update status!");
